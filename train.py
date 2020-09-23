@@ -1,14 +1,21 @@
 import os
 import numpy as np 
 from imutils import paths
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelBinarizer
 
 from keras.preprocessing.image import load_img
 from keras.preprocessing.image import img_to_array
+from keras.preprocessing.image import ImageDataGenerator
 
-from keras.layers import Dense, Flatten, 
+from keras.models import Model
 from keras.applications import MobileNetV2
 from keras.applications.mobilenet_v2 import preprocess_input
 
+from keras.layers import Dense, Flatten, Input
+from keras.layers import AveragePooling2D, Dropout
 
 
 DATASET_PATH = '/dataset/'
@@ -88,3 +95,22 @@ model.compile(loss='binary_crossentropy', optimizer='Adam',
 history = model.fit(aug.flow(trainData, trainLabels, batch_size=26),
 	steps_per_epoch=len(trainData) // 26,
 	validation_split=0.2, epochs=15)
+
+MODEL_SAVE_PATH = 'savedModels/'
+PLOT_SAVE_PATH = 'plot/'
+
+print('[STATUS] Saving model')
+model.save(MODEL_SAVE_PATH, save_format='h5')
+
+#Plotting model accuracy and loss
+N = 15
+plt.style.use("ggplot")
+plt.figure()
+plt.plot(np.arange(0, N), history.history["loss"], label="train_loss")
+plt.plot(np.arange(0, N), history.history["val_loss"], label="val_loss")
+plt.plot(np.arange(0, N), history.history["acc"], label="train_acc")
+plt.plot(np.arange(0, N), history.history["val_acc"], label="val_acc")
+plt.title("Training Loss and Accuracy")
+plt.xlabel("Epoch #")
+plt.ylabel("Loss/Accuracy"))
+plt.savefig('PLOT_SAVE_PATH')
